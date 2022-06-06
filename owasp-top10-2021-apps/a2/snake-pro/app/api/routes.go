@@ -59,6 +59,11 @@ func Register(c echo.Context) error {
 	userData.UserID = newGUID1.String()
 	userData.HighestScore = 0
 
+	userData.Password, err = pass.GeneratePassHash(userData.Password)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"result": "error", "details": "Password manipulation error"})
+	}
+
 	err = db.RegisterUser(userData)
 	if err != nil {
 		// could not register this user into MongoDB (or MongoDB err connection)
@@ -86,10 +91,11 @@ func Login(c echo.Context) error {
 		return c.JSON(http.StatusForbidden, map[string]string{"result": "error", "details": "Error login."})
 	}
 
-	validPass := pass.CheckPass(userDataResult.Password, loginAttempt.Password)
+	//validPass := pass.CheckPass(userDataResult.Password, loginAttempt.Password)
+	validPass := pass.CheckPassHash(loginAttempt.Password, userDataResult.Password)
 	if !validPass {
 		// wrong password
-		return c.JSON(http.StatusForbidden, map[string]string{"result": "error", "details": "Error login."})
+		return c.JSON(http.StatusForbidden, map[string]string{"result": "error", "details": "Error login. Check Hash"})
 	}
 
 	// Create token
