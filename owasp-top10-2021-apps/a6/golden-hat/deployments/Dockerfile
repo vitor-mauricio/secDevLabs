@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:latest
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl python3-pip python3-wheel python3-dev libffi-dev libssl-dev \
